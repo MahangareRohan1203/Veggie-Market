@@ -1,10 +1,12 @@
 package com.vegetablemart.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vegetablemart.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -15,13 +17,15 @@ public class Orders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer orderId;
 
+    @JsonIgnore
     @ManyToOne
     private Customer customer;
 
+    @JsonIgnore
     @OneToOne
     private BillingDetails billingDetails;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "orders")
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "orders")
     private List<Vegetables> vegetablesList;
 
     private Integer totalAmount;
@@ -29,5 +33,6 @@ public class Orders {
     @Enumerated(value = EnumType.STRING)
     private OrderStatus status;
 
+    private LocalDateTime orderDateTime;
 
 }
