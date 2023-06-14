@@ -18,12 +18,13 @@ public class Vegetables {
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Cart> cartList = new ArrayList<>();
 
-    @ManyToOne
-    private Orders orders;
+    @ManyToMany(cascade = CascadeType.ALL)
+    private List<Orders> orders;
 
     private String name;
     private String image;
     private String type;
     private Integer price;
     private Integer quantity;
+    private boolean isDeleted = false;
 }
