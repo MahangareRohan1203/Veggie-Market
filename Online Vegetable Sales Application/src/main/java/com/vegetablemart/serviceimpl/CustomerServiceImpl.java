@@ -16,7 +16,6 @@ import com.vegetablemart.repository.CustomerRepository;
 import com.vegetablemart.service.CustomerService;
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class CustomerServiceImpl implements CustomerService{
 
