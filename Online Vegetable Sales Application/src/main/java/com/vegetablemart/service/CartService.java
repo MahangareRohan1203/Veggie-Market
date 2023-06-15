@@ -8,7 +8,7 @@ import com.vegetablemart.exceptions.CartException;
 import java.util.List;
 
 public interface CartService {
-    public Cart generateCartForCustomer(Customer customer) throws CartException;
+    public Cart generateCartForCustomer(Integer customerId) throws CartException;
 
     public Cart addToCart(Integer cartId, Integer vegetableId, Integer quantity) throws CartException;
 

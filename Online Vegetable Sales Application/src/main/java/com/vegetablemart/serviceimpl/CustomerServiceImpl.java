@@ -14,15 +14,14 @@ import com.vegetablemart.exceptions.CustomerException;
 
 import com.vegetablemart.repository.CustomerRepository;
 import com.vegetablemart.service.CustomerService;
+import org.springframework.stereotype.Service;
 
 
-
+@Service
 public class CustomerServiceImpl implements CustomerService{
 
 	@Autowired
 	 CustomerRepository Crepo;
-	
-	
 	@Override
 	public Customer addCustomer(Customer customer, Integer customerId) throws CustomerException {
 	    Optional<Customer> customerOptional = Crepo.findById(customerId);
