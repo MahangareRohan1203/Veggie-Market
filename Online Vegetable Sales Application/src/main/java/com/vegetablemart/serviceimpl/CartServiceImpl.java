@@ -4,10 +4,13 @@ import com.vegetablemart.entities.Cart;
 import com.vegetablemart.entities.Customer;
 import com.vegetablemart.entities.Vegetables;
 import com.vegetablemart.exceptions.CartException;
+import com.vegetablemart.exceptions.CustomerException;
 import com.vegetablemart.repository.CartRepository;
+import com.vegetablemart.repository.CustomerRepository;
 import com.vegetablemart.repository.VegetablesRepository;
 import com.vegetablemart.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,6 +20,9 @@ import java.util.*;
 public class CartServiceImpl implements CartService {
 
     @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
     private CartRepository cartRepository;
 
     @Autowired
@@ -24,25 +30,27 @@ public class CartServiceImpl implements CartService {
 
 
     @Override
-    public Cart generateCartForCustomer(Customer customer) throws CartException {
+    public Cart generateCartForCustomer(Integer customerId) throws CartException {
         // Check if the customer already has a cart
-        Cart existingCart = cartRepository.findByCustomer(customer);
-        if (existingCart != null) {
-            return existingCart;
+      Cart existingCustomer = cartRepository.getCartByCustomerId(customerId);
+        if (existingCustomer != null) {
+            return existingCustomer;
+        }
+        Optional<Customer> res = customerRepository.findById(customerId);
+        if (res.isPresent()) {
+            Customer customer = res.get();
+            Cart cart = new Cart();
+            cart.setCustomer(customer);
+            cart.setTotalPrice(0.0);
+            cart.setDateAdded(LocalDateTime.now());
+            cart.setPurchased(false);
+            cart.setVegetablesList(new ArrayList<>());
+            // Save the cart
+            return cartRepository.save(cart);
         }
 
-        Cart cart = new Cart();
-        cart.setCustomer(customer);
-        cart.setTotalPrice(0.0);
-        cart.setDateAdded(LocalDateTime.now());
-        cart.setPurchased(false);
-        cart.setVegetablesList(new ArrayList<>());
-
-        // Save the cart
-        return cartRepository.save(cart);
-
+        throw new CustomerException("Customer Not found");
     }
-
 
     public Cart addToCart(Integer cartId, Integer vegetableId, Integer quantity) {
         Cart cart = cartRepository.findById(cartId)
@@ -77,10 +85,6 @@ public class CartServiceImpl implements CartService {
 
         return totalPrice;
     }
-
-
-
-
 
 
     @Override
@@ -155,5 +159,7 @@ public class CartServiceImpl implements CartService {
 
         return cart.getVegetablesList();
     }
+
+
 
 }
