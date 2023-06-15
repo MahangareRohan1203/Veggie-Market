@@ -18,4 +18,6 @@ public interface VegetablesRepository extends JpaRepository<Vegetables, Integer>
 
     @Query("Select v from Vegetables v where v.name = :name AND v.isDeleted = false")
     public List<Vegetables> findByName(String name);
+
+    public Vegetables findByVegetableId(Integer vegetableId);
 }
