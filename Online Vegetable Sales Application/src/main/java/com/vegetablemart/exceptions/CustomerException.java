@@ -1,5 +1,9 @@
 package com.vegetablemart.exceptions;
 
+
+	
+
+
 public class CustomerException extends  RuntimeException{
 
     public CustomerException(){
@@ -9,4 +13,5 @@ public class CustomerException extends  RuntimeException{
 
         super(message);
     }
+
 }
