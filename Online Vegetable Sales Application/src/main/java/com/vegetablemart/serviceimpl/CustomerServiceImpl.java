@@ -14,7 +14,7 @@ import com.vegetablemart.exceptions.CustomerException;
 
 import com.vegetablemart.repository.CustomerRepository;
 import com.vegetablemart.service.CustomerService;
-
+import org.springframework.stereotype.Service;
 
 
 public class CustomerServiceImpl implements CustomerService{
