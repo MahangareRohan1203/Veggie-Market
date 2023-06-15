@@ -22,7 +22,8 @@ public class Vegetables {
 
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Orders> orders;
-
+    
+    
     private String name;
     private String image;
     private String type;
