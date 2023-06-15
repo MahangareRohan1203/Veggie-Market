@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Getter
@@ -17,8 +19,13 @@ public class Cart {
     @OneToOne
     private Customer customer;
 
+    private double totalPrice;
+
+    private LocalDateTime dateAdded;
+
+    private boolean isPurchased;
+
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "cartList")
     private List<Vegetables> vegetablesList;
-
 
 }

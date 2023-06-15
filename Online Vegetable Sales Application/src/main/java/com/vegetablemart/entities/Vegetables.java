@@ -10,7 +10,9 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+
 public class Vegetables {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer vegetableId;
