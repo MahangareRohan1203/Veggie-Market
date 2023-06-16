@@ -4,10 +4,12 @@ import com.vegetablemart.entities.BillingDetails;
 import com.vegetablemart.entities.Customer;
 import com.vegetablemart.entities.*;
 import com.vegetablemart.entitiesDto.BillingDetailsDto;
+import com.vegetablemart.enums.TransactionStatus;
 import com.vegetablemart.exceptions.BillingException;
 import com.vegetablemart.repository.CustomerRepository;
 import com.vegetablemart.repository.*;
 import com.vegetablemart.service.BillingService;
+import org.hibernate.TransactionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,11 +33,14 @@ public class BillingServiceImpl implements BillingService {
         Orders order = ordersRepository.findById(orderId)
                 .orElseThrow(() -> new BillingException("Invalid OrderId"));
 
+        if(order.getBillingDetails() != null && order.getBillingDetails().getTransactionStatus() == TransactionStatus.SUCCESS) throw new TransactionException("Transaction Already done.");
         order.setBillingDetails(billingDetails);
-        ordersRepository.save(order);
+        billingDetails.setOrders(order);
+
 
         customer.getOrdersList().add(order);
-        customerRepository.save(customer);
+        ordersRepository.save(order);
+        billingRepository.save(billingDetails);
 
         return billingDetails;
     }
