@@ -1,5 +1,6 @@
 package com.vegetablemart.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,9 +18,14 @@ public class Vegetables {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer vegetableId;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    private List<Cart> cartList = new ArrayList<>();
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    private List<Cart> cartList = new ArrayList<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "vegetable")
+    private List<CartVegetable> cartVegetables = new ArrayList<>();
+
+    @JsonIgnore
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Orders> orders;
     

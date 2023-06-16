@@ -39,7 +39,7 @@ public class BillingController {
     }
 
 
-    @GetMapping("/bill-details")
+    @GetMapping("/bill-details/{bid}")
     public ResponseEntity<BillingDetails> getBillDetailsHandler(
             @PathVariable("bid") Integer bid){
 

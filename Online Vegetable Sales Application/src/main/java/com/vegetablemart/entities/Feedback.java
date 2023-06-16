@@ -2,6 +2,7 @@ package com.vegetablemart.entities;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.Entity;
@@ -28,6 +29,7 @@ public class Feedback {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer feedbackId;
 
+    @JsonIgnore
     @ManyToOne
     private Customer customer;
 
@@ -41,8 +43,8 @@ public class Feedback {
     
     private String comments;
     
-    @NotNull(message = "Please provide correct date")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+//    @NotNull(message = "Please provide correct date")
+//    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private LocalDateTime feedbackDateTime;
     
 	
