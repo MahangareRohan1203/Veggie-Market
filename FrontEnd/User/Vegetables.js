@@ -49,7 +49,7 @@ var requestOptions = {
       const addToCartBtn = document.createElement('a');
       addToCartBtn.classList.add('btn', 'btn-primary');
       addToCartBtn.textContent = 'Add to Cart';
-      addToCartBtn.addEventListener('click', () => addToCart(product));
+      addToCartBtn.addEventListener('click', () => addToCart(product, addToCartBtn));
   
       cardBody.appendChild(title);
       cardBody.appendChild(image);
@@ -65,9 +65,46 @@ var requestOptions = {
   }
   
   // Function to add product to cart
-  function addToCart(product) {
+  function addToCart(product, addToCartBtn) {
     // Implement your logic to add the product to the cart
     console.log('Product added to cart:', product);
+    addTocartApi(product, addToCartBtn);
+  }
+
+
+
+  function addTocartApi(product, addToCartBtn){
+
+    var myHeaders = new Headers();
+myHeaders.append("Content-Type", "application/json");
+
+var raw = JSON.stringify({
+  "vegetableId": product.vegetableId
+});
+
+var requestOptions = {
+  method: 'POST',
+  headers: myHeaders,
+  body: raw
+};
+
+fetch("http://localhost:8088/veggieMarket/cart/1", requestOptions)
+  .then(response => response.json())
+  .then(result => {
+    console.log(result);
+    if(result.message == undefined) {
+      alert("Product added successfully")
+      addToCartBtn.textContent = "Added"
+    }
+    else if(result.message == "Vegetable already exists in the cart") {
+      alert(result.message);
+      addToCartBtn.textContent = "Added"
+    }
+    else alert(result.message)
+  })
+  .catch(error => console.log('error', error));
+
+
   }
   
 // Generating Filters
