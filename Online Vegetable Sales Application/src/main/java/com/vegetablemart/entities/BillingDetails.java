@@ -1,5 +1,6 @@
 package com.vegetablemart.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vegetablemart.enums.TransactionMode;
 import com.vegetablemart.enums.TransactionStatus;
 import jakarta.persistence.*;
@@ -21,15 +22,13 @@ public class BillingDetails {
     @OneToOne
     private Orders orders;
 
-    @ManyToOne
-    private Customer customer;
-
     @OneToOne
     private Address address;
 
     @Column(nullable = false)
     private double totalAmount;
 
+    @Enumerated(value = EnumType.STRING)
     private TransactionMode transactionMode;
 
     private LocalDateTime transactionDateTime;
