@@ -1,6 +1,7 @@
 package com.vegetablemart.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.vegetablemart.dto.VegetableDTO;
 import com.vegetablemart.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -25,8 +26,10 @@ public class Orders {
     @OneToOne
     private BillingDetails billingDetails;
 
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "orders")
-    private List<Vegetables> vegetablesList;
+//    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "orders")
+//    private List<Vegetables> vegetablesList;
+    @ElementCollection
+    private List<VegetableDTO> vegetableList;
 
     private Integer totalAmount;
 

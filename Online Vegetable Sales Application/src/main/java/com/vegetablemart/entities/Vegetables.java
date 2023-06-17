@@ -25,9 +25,9 @@ public class Vegetables {
     @OneToMany(mappedBy = "vegetable")
     private List<CartVegetable> cartVegetables = new ArrayList<>();
 
-    @JsonIgnore
-    @ManyToMany(cascade = CascadeType.ALL)
-    private List<Orders> orders;
+//    @JsonIgnore
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    private List<Orders> orders;
     
     
     private String name;

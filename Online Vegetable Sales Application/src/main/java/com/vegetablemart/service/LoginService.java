@@ -5,7 +5,7 @@ import com.vegetablemart.entities.Customer;
 import com.vegetablemart.entities.User;
 
 public interface LoginService {
-    public User validateLogin(Customer customer);
+    public User validateLogin(User user);
 
-    public boolean logOut(User user);
+    public boolean logOut(Integer userId);
 }

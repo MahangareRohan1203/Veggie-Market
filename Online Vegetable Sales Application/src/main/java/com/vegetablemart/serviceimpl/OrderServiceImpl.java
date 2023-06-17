@@ -1,9 +1,12 @@
 package com.vegetablemart.serviceimpl;
 
+import com.vegetablemart.entities.Customer;
 import com.vegetablemart.entities.Orders;
 import com.vegetablemart.enums.OrderStatus;
 import com.vegetablemart.exceptions.AmountException;
+import com.vegetablemart.exceptions.CustomerException;
 import com.vegetablemart.exceptions.OrdersException;
+import com.vegetablemart.repository.CustomerRepository;
 import com.vegetablemart.repository.OrdersRepository;
 import com.vegetablemart.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,24 +23,31 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrdersRepository ordersRepository;
 
+    @Autowired
+    private CustomerRepository customerRepository;
+
     @Override
     public Orders addOrder(Integer customerId, Orders orders) {
-        System.out.println("Customer Id: " + customerId + " orders: " + orders.getVegetablesList());
+        System.out.println("Customer Id: " + customerId + " orders: " + orders.getVegetableList());
         orders.setOrderId(null);
+        Customer existingCustomer = customerRepository.findById(customerId).orElseThrow(()-> new CustomerException("Customer Not found"));
         //TODO: Validate Customer and set relations
         Integer totalAmount = 0;
-        if (orders.getVegetablesList() != null) {
-            for (int i = 0; i < orders.getVegetablesList().size(); i++) {
-                totalAmount += orders.getVegetablesList().get(i).getPrice();
+        if (orders.getVegetableList() != null || orders.getVegetableList().size() != 0) {
+            for (int i = 0; i < orders.getVegetableList().size(); i++) {
+                totalAmount += orders.getVegetableList().get(i).getVegetableDtoPrice();
             }
 
             if (!totalAmount.equals(orders.getTotalAmount()))
                 throw new AmountException("Total Amount should be " + totalAmount);
         }
-//        else throw new OrdersException("Vegetable List cannot be empty.");
+        else throw new OrdersException("Vegetable List cannot be empty.");
         orders.setStatus(OrderStatus.ON_THE_WAY);
 
-        ordersRepository.save(orders);
+        orders.setCustomer(existingCustomer);
+        orders = ordersRepository.save(orders);
+        existingCustomer.getOrdersList().add(orders);
+        customerRepository.save(existingCustomer);
         return orders;
 
     }
@@ -51,15 +61,15 @@ public class OrderServiceImpl implements OrderService {
     public Orders updateOrder(Integer orderId, Orders orders) {
         Orders existingOrder = ordersRepository.findById(orderId).orElseThrow(() -> new OrdersException("Order not Found."));
 
-        if (orders.getVegetablesList() != null) {
+        if (orders.getVegetableList() != null) {
             Integer totalAmount = 0;
-            for (int i = 0; i < orders.getVegetablesList().size(); i++) {
-                totalAmount += orders.getVegetablesList().get(i).getPrice();
+            for (int i = 0; i < orders.getVegetableList().size(); i++) {
+                totalAmount += orders.getVegetableList().get(i).getVegetableDtoPrice() * orders.getVegetableList().get(i).getVegetableQuantity();
             }
 
             if (!totalAmount.equals(orders.getTotalAmount()))
                 throw new AmountException("Total Amount should be " + totalAmount);
-            existingOrder.setVegetablesList(orders.getVegetablesList());
+            existingOrder.setVegetableList(orders.getVegetableList());
             existingOrder.setTotalAmount(orders.getTotalAmount());
         }
 
@@ -70,11 +80,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Orders> viewAllOrdersByCustomerId(Integer customerId) {
+        Customer existingCustomer = customerRepository.findById(customerId).orElseThrow(()->new CustomerException("Customer Not found"));
         // TODO: Validate the customer
-//        List<Orders> ordersList = ordersRepository.getOrdersByCustomerId(customerId);
-//        if(ordersList == null || ordersList.size() == 0) throw new OrdersException("Order List is Empty.");
-//
-        return null;
+        List<Orders> ordersList = existingCustomer.getOrdersList();
+        if(ordersList == null || ordersList.size() == 0) throw new OrdersException("Order List is Empty.");
+
+        return ordersList;
     }
 
     @Override
