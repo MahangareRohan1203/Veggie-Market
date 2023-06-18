@@ -1,5 +1,5 @@
 var products = [];
-
+var customerId = localStorage.getItem('customerId');
 var requestOptions = {
     method: 'GET',
   };
@@ -67,6 +67,7 @@ var requestOptions = {
   // Function to add product to cart
   function addToCart(product, addToCartBtn) {
     // Implement your logic to add the product to the cart
+    customerId = localStorage.getItem('customerId');
     console.log('Product added to cart:', product);
     addTocartApi(product, addToCartBtn);
   }
@@ -88,7 +89,7 @@ var requestOptions = {
   body: raw
 };
 
-fetch("http://localhost:8088/veggieMarket/cart/1", requestOptions)
+fetch(`http://localhost:8088/veggieMarket/cart/${customerId}`, requestOptions)
   .then(response => response.json())
   .then(result => {
     console.log(result);
