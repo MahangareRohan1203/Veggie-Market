@@ -55,7 +55,7 @@
 
 
 ## ER-Diagram
-![ER Diagram]()
+![ER Diagram](https://github.com/MahangareRohan1203/malicious-liquid-1505/blob/main/ER_Table.png)
 
 ## Work-Flow
 ![Work Flow_1]()
