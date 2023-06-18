@@ -1,20 +1,27 @@
 package com.vegetablemart.serviceimpl;
 
-import com.vegetablemart.entities.Cart;
-import com.vegetablemart.entities.Customer;
-import com.vegetablemart.entities.Vegetables;
+import com.vegetablemart.entities.*;
 import com.vegetablemart.exceptions.CartException;
+import com.vegetablemart.exceptions.CustomerException;
+import com.vegetablemart.exceptions.VegetablesException;
 import com.vegetablemart.repository.CartRepository;
+import com.vegetablemart.repository.CartVegetableRepository;
+import com.vegetablemart.repository.CustomerRepository;
 import com.vegetablemart.repository.VegetablesRepository;
 import com.vegetablemart.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class CartServiceImpl implements CartService {
+
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Autowired
     private CartRepository cartRepository;
@@ -22,46 +29,43 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private VegetablesRepository vegetableRepository;
 
-
-    @Override
-    public Cart generateCartForCustomer(Customer customer) throws CartException {
-        // Check if the customer already has a cart
-        Cart existingCart = cartRepository.findByCustomer(customer);
-        if (existingCart != null) {
-            return existingCart;
-        }
-
-        Cart cart = new Cart();
-        cart.setCustomer(customer);
-        cart.setTotalPrice(0.0);
-        cart.setDateAdded(LocalDateTime.now());
-        cart.setPurchased(false);
-        cart.setVegetablesList(new ArrayList<>());
-
-        // Save the cart
-        return cartRepository.save(cart);
-
-    }
+    @Autowired
+    private CartVegetableRepository cartVegetableRepository;
 
 
-    public Cart addToCart(Integer cartId, Integer vegetableId, Integer quantity) {
-        Cart cart = cartRepository.findById(cartId)
+    public Cart addToCart(Integer customerId, Vegetables vegetables) {
+
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerException("Customer not found"));
+
+        Cart cart = cartRepository.findById(customer.getCart().getCartId())
                 .orElseThrow(() -> new CartException("Cart not found"));
 
-        Vegetables vegetable = vegetableRepository.findById(vegetableId)
+        Vegetables vegetable = vegetableRepository.findById(vegetables.getVegetableId())
                 .orElseThrow(() -> new CartException("Vegetable not found"));
 
-        boolean isVegetableInCart = cart.getVegetablesList().contains(vegetable);
+        List<CartVegetable> cartVegetable = cart.getCartVegetables();
 
-        if (isVegetableInCart) {
-            throw new CartException("Vegetable already exists in the cart");
-        } else {
-            cart.getVegetablesList().add(vegetable);
+        double totalPrice = 0.0;
+        for (int i = 0; i < cartVegetable.size(); i++) {
+            if (Objects.equals(cartVegetable.get(i).getVegetable().getVegetableId(), vegetable.getVegetableId()))
+                throw new CartException("Vegetable already exists in the cart");
+            totalPrice += cartVegetable.get(i).getQuantityForCart() * cartVegetable.get(i).getVegetable().getPrice();
         }
+        CartVegetable middle = new CartVegetable();
 
-        // Recalculate the total price of the cart
-        double totalPrice = calculateTotalPrice(cart);
+        CartVegetableId myId = new CartVegetableId(cart.getCartId(), vegetable.getVegetableId());
+        middle.setQuantityForCart(1);
+        middle.setId(myId);
+        middle.setCart(cart);
+
+        middle.setVegetable(vegetable);
+
+        cartVegetable.add(middle);
+
+        totalPrice += vegetable.getPrice();
+
         cart.setTotalPrice(totalPrice);
+        System.out.println("Cart => " + middle.getId() + " " + middle.getCart() + " " + middle.getQuantityForCart());
 
         cartRepository.save(cart);
         return cart;
@@ -69,45 +73,48 @@ public class CartServiceImpl implements CartService {
 
     private double calculateTotalPrice(Cart cart) {
         double totalPrice = 0.0;
+        if (cart == null) throw new CartException("Cart is null");
+        if (cart.getCartVegetables() == null || cart.getCartVegetables().size() == 0) return 0;
 
-        for (Vegetables vegetable : cart.getVegetablesList()) {
-            double price = vegetable.getPrice();
-            totalPrice += price;
+        List<CartVegetable> cartVegetable = cart.getCartVegetables();
+        System.out.println("Cart list before printing => "+ cartVegetable);
+        for (int i = 0; i < cartVegetable.size(); i++) {
+            totalPrice += cartVegetable.get(i).getQuantityForCart() * cartVegetable.get(i).getVegetable().getPrice();
         }
-
+        cart.setTotalPrice(totalPrice);
+        cartRepository.save(cart);
         return totalPrice;
     }
 
 
-
-
-
-
     @Override
-    public void increaseQuantity(Integer VegtableId, int quantity) throws CartException {
-        Optional<Vegetables> vegetableOpt = vegetableRepository.findById(VegtableId);
-        if(vegetableOpt.isPresent()){
+    public void increaseQuantity(Integer customerId, Vegetables vegetables, int quantity) throws CartException {
+        Customer existingCustomer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerException("Customer not found"));
+        Vegetables existingVegetable = vegetableRepository.findById(vegetables.getVegetableId()).orElseThrow(() -> new VegetablesException("Vegetable Not found"));
 
-            Vegetables  vegetableEntity= vegetableOpt.get();
-            int existingQuantity = vegetableEntity.getQuantity();
-            int newQuantity = existingQuantity +quantity;
-            vegetableEntity.setQuantity(newQuantity);
-            vegetableRepository.save(vegetableEntity);
+        List<CartVegetable> cartVegetable = existingCustomer.getCart().getCartVegetables();
+        for (int i = 0; i < cartVegetable.size(); i++) {
+            if (cartVegetable.get(i).getVegetable() == existingVegetable) {
+                cartVegetable.get(i).setQuantityForCart(quantity);
+                cartVegetableRepository.save(cartVegetable.get(i));
 
-            System.out.println("Successfully Incresed " + quantity);
+                existingCustomer.getCart().setTotalPrice(calculateTotalPrice(existingCustomer.getCart()));
+                cartRepository.save(existingCustomer.getCart());
+            }
         }
-        throw new CartException("Vegetable Not found");
+
+
     }
 
     @Override
     public void decreseQuantity(Integer vegetable, int quantity) throws CartException {
 
         Optional<Vegetables> vegetableOpt = vegetableRepository.findById(vegetable);
-        if(vegetableOpt.isPresent()){
+        if (vegetableOpt.isPresent()) {
 
-            Vegetables  vegetableEntity= vegetableOpt.get();
+            Vegetables vegetableEntity = vegetableOpt.get();
             int existingQuantity = vegetableEntity.getQuantity();
-            int newQuantity = existingQuantity -quantity;
+            int newQuantity = existingQuantity - quantity;
             vegetableEntity.setQuantity(newQuantity);
             vegetableRepository.save(vegetableEntity);
 
@@ -117,22 +124,30 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Cart removeVegetableFromCart(Integer vegetableId, Integer cartId) throws CartException {
-        Vegetables vegetable = vegetableRepository.findById(vegetableId)
-                .orElseThrow(() -> new CartException("Vegetable not found"));
+    public Cart removeVegetableFromCart(Integer customerId, Vegetables vegetables) throws CartException {
 
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new CartException("Cart not found"));
+        Customer existingCustomer = customerRepository.findById(customerId).orElseThrow(()-> new CustomerException("Customer Not found"));
 
-        // Remove the vegetable from the cart
-        cart.getVegetablesList().remove(vegetable);
+        Vegetables existingVegetable = vegetableRepository.findById(vegetables.getVegetableId()).orElseThrow(()->new VegetablesException("Vegetable not found"));
 
-        // Save the updated cart in the database
-        cartRepository.save(cart);
 
-        System.out.println("Successfully removed the vegetable from the cart.");
-        return cart;
+        Cart existingCart = existingCustomer.getCart();
 
+        List<CartVegetable> cartVegetableList = existingCart.getCartVegetables();
+        for(int i=0;i<cartVegetableList.size();i++){
+            System.out.println("Vegetable Id: in middle table: "+ cartVegetableList.get(i).getVegetable().getVegetableId());
+
+            if(cartVegetableList.get(i).getVegetable() == existingVegetable){
+                CartVegetable temp = cartVegetableList.get(i);
+                cartVegetableList.remove(temp);
+                System.out.println("Check if removed..");
+                cartVegetableRepository.delete(temp);
+                calculateTotalPrice(existingCart);
+                return existingCart;
+            }
+
+        }
+        throw new CartException("Vegetable not found in your cart: ");
     }
 
     @Override
@@ -140,8 +155,8 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new CartException("Cart not found"));
 
-        cart.getVegetablesList().clear();
-        // Save the updated cart in the database
+//        cart.getVegetablesList().clear();
+
         cartRepository.save(cart);
 
         System.out.println("Successfully removed all vegetables from the cart.");
@@ -149,11 +164,29 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<Vegetables> viewVegetableList(Integer cartId) {
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new CartException("Cart not found"));
+    public List<Vegetables> viewVegetableList(Integer customerId) {
 
-        return cart.getVegetablesList();
+        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerException("Customer not found"));
+
+        System.out.println("Customer name " + customer.getName());
+//        return customer.getCart().getVegetablesList();
+        return null;
     }
+
+    @Override
+    public List<Vegetables> getAllVegetablesFromCart(Integer customerId) {
+        Customer customer = customerRepository.findById(customerId).orElseThrow(()-> new CustomerException("Customer Not found"));
+        List<Vegetables> vegetablesList = new ArrayList<>();
+
+        List<CartVegetable> middle = customer.getCart().getCartVegetables();
+        for(int i=0;i<middle.size();i++){
+            int quantity = middle.get(i).getQuantityForCart();
+            Vegetables temp = middle.get(i).getVegetable();
+            temp.setQuantity(quantity);
+           vegetablesList.add(temp);
+        }
+        return vegetablesList;
+    }
+
 
 }
