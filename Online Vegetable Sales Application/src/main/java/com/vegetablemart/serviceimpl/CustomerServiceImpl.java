@@ -95,7 +95,7 @@ public class CustomerServiceImpl implements CustomerService {
 
 
 
-	    Optional<Customer> cusOptional = Crepo.findById(customerId);
+	    Optional<Customer> cusOptional = Crepo.findById(customer.getCustomerId());
 
 	   
 
