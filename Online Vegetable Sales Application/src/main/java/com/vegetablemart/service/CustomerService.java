@@ -8,7 +8,7 @@ import com.vegetablemart.exceptions.CustomerException;
 public interface CustomerService {
 	
 	
-	public Customer addCustomer(Customer customer,Integer customerId) throws CustomerException;
+	public Customer addCustomer(Customer customer) throws CustomerException;
 	
 	public Customer deleteCustomer(Integer customerId ) throws CustomerException;
     

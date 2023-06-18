@@ -38,12 +38,12 @@ public class CustomerController {
 	
 	
 	
-	@PostMapping("/user/customer/add/{customerId}")
-	public ResponseEntity<Customer> addCustomer(@Valid @RequestBody Customer customer,
+	@PostMapping("/user/customer/add")
+	public ResponseEntity<Customer> addCustomer(@Valid @RequestBody Customer customer
 											 
-											   @PathVariable("customerId") Integer customerId) throws CustomerException {
+											  ) throws CustomerException {
 		// Add Customer using the provided service method
-		Customer custmer2 = customerService.addCustomer(customer, customerId);
+		Customer custmer2 = customerService.addCustomer(customer);
 		
 		return new ResponseEntity<Customer>(custmer2, HttpStatus.ACCEPTED);
 	}

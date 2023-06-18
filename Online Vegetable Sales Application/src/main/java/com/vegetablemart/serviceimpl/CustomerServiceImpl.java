@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import com.vegetablemart.entities.Address;
+
 
 import com.vegetablemart.entities.Customer;
 
@@ -16,7 +17,7 @@ import com.vegetablemart.repository.CustomerRepository;
 import com.vegetablemart.service.CustomerService;
 
 
-
+@Service
 public class CustomerServiceImpl implements CustomerService{
 
 	@Autowired
@@ -24,17 +25,8 @@ public class CustomerServiceImpl implements CustomerService{
 	
 	
 	@Override
-	public Customer addCustomer(Customer customer, Integer customerId) throws CustomerException {
-	    Optional<Customer> customerOptional = Crepo.findById(customerId);
+	public Customer addCustomer(Customer customer) throws CustomerException {
 
-	    if (customerOptional.isPresent()) {
-	        throw new CustomerException("Customer is already present with Id: " + customerId);
-	    }
-
-	    List<Address> customerAddress = customer.getCustomerAddress();
-	    for (Address address : customerAddress) {
-	        address.setCustomer(customer);
-	    }
 
 	   return Crepo.save(customer);
 	}
