@@ -26,7 +26,7 @@ public class BillingDetails {
     private Address address;
 
     @Column(nullable = false)
-    private double totalAmount;
+    private Double totalAmount;
 
     @Enumerated(value = EnumType.STRING)
     private TransactionMode transactionMode;
