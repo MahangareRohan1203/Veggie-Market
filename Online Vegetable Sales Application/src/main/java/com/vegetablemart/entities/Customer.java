@@ -20,11 +20,12 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer customerId;
 
+
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer")
     private List<Address> customerAddress = new ArrayList<>();
 
-    @JsonIgnore
+   @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer")
     private List<Orders> ordersList = new ArrayList<>();
 
@@ -37,7 +38,9 @@ public class Customer {
     private List<Feedback> feedbackList = new ArrayList<>();
 
 
+
     @NotBlank(message = "Customer name can't be null/blank, Please provide a valid name first!")
+
     private String name;
 
     @Pattern(regexp = "[0-9]{10}", message = "Invalid mobile number. Please provide a 10-digit number.")

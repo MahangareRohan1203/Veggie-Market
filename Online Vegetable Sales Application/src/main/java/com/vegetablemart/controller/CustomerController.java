@@ -19,6 +19,7 @@ import java.util.List;
 public class CustomerController {
 
 
+
     @Autowired
     private CustomerService customerService;
 
@@ -65,6 +66,5 @@ public class CustomerController {
 
         return new ResponseEntity<List<Customer>>(custmer2, HttpStatus.ACCEPTED);
     }
-
 
 }

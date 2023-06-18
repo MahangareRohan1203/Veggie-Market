@@ -14,11 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerRepository Crepo;
+
 
     @Autowired
     private CartRepository cartRepository;
@@ -91,6 +93,14 @@ public class CustomerServiceImpl implements CustomerService {
     public Customer updateCustomer(Customer customer) throws CustomerException {
         Optional<Customer> optional = Crepo.findById(customer.getCustomerId());
 
+
+
+	    Optional<Customer> cusOptional = Crepo.findById(customerId);
+
+	   
+
+	
+
         if (optional.isPresent()) {
             Customer existingCustomer = optional.get();
 
@@ -105,6 +115,7 @@ public class CustomerServiceImpl implements CustomerService {
             throw new CustomerException("No customer found!");
         }
     }
+
 
 
 }
