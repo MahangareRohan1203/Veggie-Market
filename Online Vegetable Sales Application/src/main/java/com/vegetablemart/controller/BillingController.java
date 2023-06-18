@@ -19,12 +19,14 @@ public class BillingController {
 
 
     @PostMapping  ("/bill-detail/{cid}/{oid}")
-    public ResponseEntity<BillingDetails> updateBillingDetailsHandler(
+    public ResponseEntity<BillingDetails> AddNewBillDetailsHandler(
             @PathVariable("cid") Integer cid,
             @PathVariable("oid") Integer oid,
-            @Valid BillingDetails billingDetails){
+            @Valid @RequestBody BillingDetails billingDetails){
 
+        System.out.println("billing details"+billingDetails.getTotalAmount());
         BillingDetails res=billingService.AddBill(cid, oid, billingDetails);
+
         return new ResponseEntity<>(res, HttpStatus.CREATED);
     }
 

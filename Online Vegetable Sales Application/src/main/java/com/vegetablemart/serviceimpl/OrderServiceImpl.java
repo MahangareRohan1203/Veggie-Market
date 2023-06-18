@@ -35,19 +35,20 @@ public class OrderServiceImpl implements OrderService {
         Integer totalAmount = 0;
         if (orders.getVegetableList() != null || orders.getVegetableList().size() != 0) {
             for (int i = 0; i < orders.getVegetableList().size(); i++) {
-                totalAmount += orders.getVegetableList().get(i).getVegetableDtoPrice();
+                totalAmount += orders.getVegetableList().get(i).getVegetableDtoPrice()  * orders.getVegetableList().get(i).getVegetableQuantity();
             }
 
             if (!totalAmount.equals(orders.getTotalAmount()))
                 throw new AmountException("Total Amount should be " + totalAmount);
         }
         else throw new OrdersException("Vegetable List cannot be empty.");
-        orders.setStatus(OrderStatus.ON_THE_WAY);
-
+        orders.setStatus(OrderStatus.PENDING);
+        orders.setTotalAmount(totalAmount);
         orders.setCustomer(existingCustomer);
         orders = ordersRepository.save(orders);
         existingCustomer.getOrdersList().add(orders);
         customerRepository.save(existingCustomer);
+
         return orders;
 
     }
