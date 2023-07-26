@@ -76,6 +76,8 @@
 ### Login Module
 
 * `POST //api/adminlogin` : Admin can login with Email and password provided at the time of registation
+
+[Video Link](https://drive.google.com/drive/folders/1_tH1wN5v6ublnhkgzmkQoKlLSJ6L-JRK)
 <!--
 ### User Module
 
@@ -130,6 +132,6 @@
 
 ---
 
-[Video Link](https://drive.google.com/drive/folders/1_tH1wN5v6ublnhkgzmkQoKlLSJ6L-JRK)
+
 
 
